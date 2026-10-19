@@ -1,0 +1,21 @@
+# secrets
+.env
+# rebuilt / generated
+data/kb/*
+!data/kb/.gitkeep
+data/*.sqlite3
+data/backups/
+outputs/
+# private study data and raw scans live in the cloud backup, never in Git (B1, B14)
+data/study/
+data/raw_scans/
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+# editors
+.vscode/
+.idea/
+.DS_Store
