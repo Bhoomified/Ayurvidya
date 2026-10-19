@@ -281,3 +281,18 @@ class EvaluationTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
+
+
+
+class Stage2Tests(unittest.TestCase):
+    def test_dotenv(self):
+        import os
+        from ayurvidya.config import load_dotenv
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / ".env"
+            p.write_text("# comment\nAYV_TEST_KEY=hello\nAYV_EMPTY=\n", encoding="utf-8")
+            os.environ.pop("AYV_TEST_KEY", None)
+            load_dotenv(p)
+            self.assertEqual(os.environ.get("AYV_TEST_KEY"), "hello")
+            self.assertNotIn("AYV_EMPTY", os.environ)
+            os.environ.pop("AYV_TEST_KEY", None)

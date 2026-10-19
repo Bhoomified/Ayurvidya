@@ -1,6 +1,7 @@
 """Settings, loaded from config/settings.yaml with environment-variable overrides.
 
-Secrets (API keys) are read ONLY from the environment, never from the YAML file.
+Secrets (API keys) are read ONLY from the environment or the git-ignored .env file,
+never from the YAML file.
 """
 from __future__ import annotations
 
@@ -41,7 +42,24 @@ class Settings:
     extra: dict[str, Any] = field(default_factory=dict)
 
 
+def load_dotenv(path: str | os.PathLike | None = None) -> None:
+    """Read KEY=VALUE lines from .env into the environment (existing variables win).
+    Lines starting with # and blank values are ignored."""
+    env = Path(path) if path else ROOT / ".env"
+    if not env.exists():
+        return
+    for line in env.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+
+
 def load_settings(path: str | os.PathLike | None = None) -> Settings:
+    load_dotenv()
     s = Settings()
     cfg = Path(path) if path else ROOT / "config" / "settings.yaml"
     if cfg.exists():
