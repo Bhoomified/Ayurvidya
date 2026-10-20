@@ -61,8 +61,11 @@ def export_review(store: Store, chapter_id: str, path: str | Path, only_status: 
 
 def import_review(store: Store, path: str | Path, dry_run: bool = False) -> dict:
     """Read a filled review sheet and save status / corrections / notes. Returns counts + problems."""
-    ws = load_workbook(path, read_only=True).worksheets[0]
-    rows = list(ws.iter_rows(values_only=True))
+    wb = load_workbook(path, read_only=True)
+    try:
+        rows = list(wb.worksheets[0].iter_rows(values_only=True))
+    finally:
+        wb.close()                      # Windows: release the file, or it stays locked
     head = [str(h or "").strip() for h in rows[0]]
     missing = [c for c in ("shloka_id", "step", "status", "corrected_output", "reviewer_note") if c not in head]
     if missing:
