@@ -98,7 +98,15 @@ def v_step4(out: str, sh: Shloka, prev: dict) -> list[str]:
     if n_pada and len(pairs) < 0.6 * n_pada:
         issues.append(f"{len(pairs)} meanings for {n_pada} padas — some padas skipped")
     return issues
-
+def english_issue(out: str, name: str, min_share: float = 0.5) -> list[str]:
+    """Steps 5 and 7 must be written in English (Sanskrit terms in Devanagari are fine).
+    In the gold table at least 75% of the letters are English; an all-Sanskrit answer has ~0%."""
+    t = re.sub(r"\[R[\d,\s R]*\]", "", out)          # ignore [R1] citation markers
+    lat, dev = len(_LAT.findall(t)), len(_DEV.findall(t))
+    if lat / max(1, lat + dev) < min_share:
+        return [f"{name} must be written in English (keep only Sanskrit terms in Devanagari), "
+                "not in Sanskrit or another language"]
+    return []
 
 def _sentences(text: str) -> int:
     return len([s for s in re.split(r"(?<=[.!?।])\s+", text.strip()) if len(s) > 3])
@@ -107,8 +115,7 @@ def _sentences(text: str) -> int:
 def v_step5(out: str, sh: Shloka, prev: dict) -> list[str]:
     n = _sentences(out)
     issues = [] if 2 <= n <= 6 else [f"bhavartha should be 2-5 sentences, got {n}"]
-    if not _LAT.search(out):
-        issues.append("bhavartha must be in English")
+    issues += english_issue(out, "bhavartha")
     return issues
 
 
@@ -126,6 +133,7 @@ def v_step7(out: str, sh: Shloka, prev: dict) -> list[str]:
     for k in (2, 5):   # must not merely repeat earlier layers
         if prev.get(k) and out.strip()[:80] == prev[k].strip()[:80]:
             issues.append(f"repeats step {k} instead of giving the implied meaning")
+    issues += english_issue(out, "dhvanitartha")
     return issues
 
 

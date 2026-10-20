@@ -35,6 +35,11 @@ class QualityTests(unittest.TestCase):
         self.assertGreaterEqual(time.time() - t0, 0.19)
         self.assertEqual(llm.calls, 2)
 
+    def test_english_check(self):
+        from ayurvidya.steps import english_issue
+        self.assertEqual(english_issue("Sushruta asks about the सुश्रुतः seat of वायु [R1].", "x"), [])
+        self.assertTrue(english_issue("अस्मिन् अध्याये सुश्रुतः वायोः जिज्ञासाम् करोति [R1]।", "x"))
 
+        
 if __name__ == "__main__":
     unittest.main(verbosity=2)
