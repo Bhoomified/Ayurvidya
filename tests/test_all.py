@@ -70,7 +70,10 @@ class TextTests(unittest.TestCase):
             self.assertEqual(iast_to_devanagari(devanagari_to_iast(w)), w)
         self.assertEqual(to_devanagari("vātavyādhinidānaṃ"), "वातव्याधिनिदानं")
         self.assertEqual(to_devanagari("What is Vata?"), "What is Vata?")
-
+        from ayurvidya.text import looks_harvard_kyoto
+        self.assertFalse(looks_harvard_kyoto("Which Vayu moves in the mouth?"))
+        self.assertTrue(looks_harvard_kyoto("rUkSaH zIto laghuH kharaH"))
+        
     def test_strip_markers(self):
         self.assertEqual(strip_verse_markers("पचति हि ||१६||"), "पचति हि")
 

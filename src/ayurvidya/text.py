@@ -137,11 +137,26 @@ def to_devanagari(text: str) -> str:
         return normalize(text)
     if re.search(r"[āīūṛṝḷḹṃḥṅñṭḍṇśṣ]", text):          # diacritics => IAST
         return normalize(iast_to_devanagari(text))
-    try:                                                 # plain ASCII: try Harvard-Kyoto via library
+    if not looks_harvard_kyoto(text):                    # plain English question: leave it alone
+        return text
+    try:                                                 # Sanskrit typed in Harvard-Kyoto, e.g. "vAyuH"
         from indic_transliteration import sanscript
         return normalize(sanscript.transliterate(text, sanscript.HK, sanscript.DEVANAGARI))
     except ImportError:
-        return text                                       # leave English questions untouched
+        return text
+
+
+_ENGLISH = {"what", "is", "are", "the", "a", "an", "of", "and", "or", "in", "on", "to", "how", "why",
+            "which", "who", "does", "do", "for", "with", "by", "from", "this", "that", "meaning", "explain"}
+
+
+def looks_harvard_kyoto(text: str) -> bool:
+    """Plain-ASCII text counts as Harvard-Kyoto Sanskrit only if it has no common English words AND
+    uses an HK capital inside a word (vAyu, prANa, zIta) - so 'What is Vata?' stays English."""
+    words = re.findall(r"[A-Za-z]+", text)
+    if not words or any(w.lower() in _ENGLISH for w in words):
+        return False
+    return any(re.search(r"[a-z][AIURLMHNTDSG]|^[AIURMHNTDSG]{2}|z", w) for w in words)                                  # leave English questions untouched
 
 
 def fold_for_search(text: str) -> str:
