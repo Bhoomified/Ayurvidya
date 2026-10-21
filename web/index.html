@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f2a55">
+  <meta name="description" content="Study Sushruta Samhita, Nidana Sthana 1, verse by verse through the 7 Ayurvidya steps">
+  <title>Ayurvidya</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;700&family=Tiro+Devanagari+Sanskrit&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="list">
+  <header class="bar">
+    <button id="back" class="icon-btn" aria-label="Back">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <a class="brand" href="#/">
+      <span class="brand-deva">आयुर्विद्या</span>
+      <span class="brand-en">Ayurvidya</span>
+    </a>
+    <div id="crumb" class="crumb"></div>
+  </header>
+  <div class="layout">
+    <aside id="side" class="side" aria-label="Verses"></aside>
+    <main id="view" class="view" aria-live="polite"></main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

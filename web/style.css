@@ -1,0 +1,185 @@
+/* Ayurvidya - indigo ink, turmeric, kumkum on neem-leaf paper. Verses on a palm-leaf strip. */
+:root {
+  --paper: #eef1e6;      /* page */
+  --leaf: #f8f3df;       /* palm-leaf strip */
+  --leaf-edge: #d9cfa6;
+  --card: #ffffff;
+  --ink: #1f2a55;        /* indigo: text, bar */
+  --text: #26304a;
+  --muted: #5f6880;
+  --line: #d7dccb;
+  --haldi: #e2a600;      /* turmeric: progress, active step */
+  --haldi-soft: #fbefc6;
+  --kumkum: #b3352b;     /* verse numbers, dandas */
+  --ok: #2d6a3e; --ok-soft: #dcecd9;
+  --deva: "Tiro Devanagari Sanskrit", "Nirmala UI", "Mangal", serif;
+  --ui: "Mukta", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #10152b; --leaf: #1c2340; --leaf-edge: #2e3863; --card: #181f3b;
+    --ink: #e8ecfb; --text: #dfe3f2; --muted: #9aa3c2; --line: #2b3458;
+    --haldi: #f2c14e; --haldi-soft: #3a3320; --kumkum: #f08a7e; --ok: #8fd19b; --ok-soft: #1d3326;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--text); font-family: var(--ui); font-size: 17px; line-height: 1.5; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--haldi); outline-offset: 2px; border-radius: 6px; }
+.deva { font-family: var(--deva); }
+
+/* ---------- top bar */
+.bar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 10px; min-height: 58px;
+       padding: env(safe-area-inset-top) max(14px, calc((100vw - 1180px) / 2 + 20px)) 0; background: #1f2a55; color: #f3f1e6; }
+.icon-btn { display: none; background: none; border: 0; color: inherit; padding: 8px; margin-left: -6px; border-radius: 10px; cursor: pointer; }
+body:not([data-screen="list"]) .icon-btn { display: inline-flex; }
+.brand { display: flex; align-items: baseline; gap: 8px; text-decoration: none; }
+.brand-deva { font-family: var(--deva); font-size: 1.3rem; color: #f2c14e; }
+.brand-en { font-size: .85rem; opacity: .75; }
+.crumb { margin-left: auto; font-size: .9rem; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- layout: one pane on phones, two panes on wide screens */
+.layout { max-width: 1180px; margin: 0 auto; }
+.side, .view { padding: 18px 16px 110px; }
+body[data-screen="list"] .view { display: none; }
+body:not([data-screen="list"]) .side { display: none; }
+@media (min-width: 960px) {
+  .layout { display: grid; grid-template-columns: 380px 1fr; gap: 28px; padding: 0 20px; }
+  .side { display: block !important; position: sticky; top: 58px; height: calc(100vh - 58px); overflow-y: auto; padding-right: 8px; }
+  .view { display: block !important; padding-top: 22px; }
+  .icon-btn { display: none !important; }
+  .crumb { display: none; }
+}
+
+/* ---------- chapter heading + verse list */
+.chapter { padding: 6px 2px 16px; border-bottom: 2px solid var(--ink); margin-bottom: 6px; }
+.chapter h1 { font-family: var(--deva); font-weight: 400; font-size: 1.9rem; line-height: 1.25; margin: 0; color: var(--ink); }
+.chapter p { margin: 2px 0 0; color: var(--muted); font-size: .95rem; }
+.progress { margin-top: 12px; display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted); }
+.progress .track { flex: 1; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.progress .fill { height: 100%; background: var(--haldi); }
+.search { width: 100%; margin: 14px 0 6px; padding: 11px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+          background: var(--card); color: var(--text); font: inherit; }
+.topic { margin: 18px 0 2px; font-size: .82rem; color: var(--kumkum); font-weight: 500; }
+.verse-link { display: grid; grid-template-columns: 44px 1fr; gap: 6px; width: 100%; padding: 12px 4px; text-align: left;
+              background: none; border: 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+.verse-link:hover { background: color-mix(in srgb, var(--haldi-soft) 50%, transparent); }
+.verse-link[aria-current="true"] { background: var(--haldi-soft); box-shadow: inset 3px 0 0 var(--haldi); }
+.verse-link .n { font-family: var(--deva); color: var(--kumkum); font-size: 1.15rem; text-align: center; padding-top: 2px; }
+.verse-link .t { font-family: var(--deva); font-size: 1.02rem; line-height: 1.7; color: var(--text); white-space: pre-line; }
+.empty { color: var(--muted); padding: 30px 6px; }
+
+/* ---------- the palm leaf: the one decorated element */
+.leaf { position: relative; background: var(--leaf); border: 1px solid var(--leaf-edge); border-radius: 22px / 40px;
+        padding: 22px 46px; text-align: center; box-shadow: 0 1px 0 var(--leaf-edge), 0 10px 24px -18px rgba(31,42,85,.6); }
+.leaf::before, .leaf::after { content: ""; position: absolute; top: 50%; width: 11px; height: 11px; margin-top: -5.5px;
+        border-radius: 50%; background: var(--paper); box-shadow: inset 0 1px 2px rgba(0,0,0,.25); }
+.leaf::before { left: 18px; } .leaf::after { right: 18px; }
+@media (max-width: 520px) { .leaf { padding: 18px 30px; } .leaf::before { left: 11px; } .leaf::after { right: 11px; } }
+.leaf .verse { font-family: var(--deva); font-size: clamp(1.12rem, 4.4vw, 1.7rem); line-height: 1.85; color: var(--ink); white-space: pre-line; }
+.leaf .variant { margin-top: 10px; font-size: .9rem; color: var(--muted); }
+.leaf .variant b { font-weight: 500; color: var(--kumkum); }
+.verse-head { display: flex; align-items: baseline; justify-content: space-between; margin: 0 2px 10px; }
+.verse-head h2 { margin: 0; font-size: 1.05rem; color: var(--muted); font-weight: 500; }
+.verse-head h2 .deva { color: var(--kumkum); font-size: 1.35rem; margin-left: 4px; }
+.pager { display: flex; gap: 6px; }
+.pager button { border: 1.5px solid var(--line); background: var(--card); border-radius: 10px; padding: 4px 12px; cursor: pointer; }
+.pager button[disabled] { opacity: .35; cursor: default; }
+
+/* ---------- the 7-step path (a real sequence, so it is numbered) */
+.path { list-style: none; display: grid; grid-template-columns: repeat(7, 1fr); margin: 26px 0 8px; padding: 0; position: relative; }
+.path::before { content: ""; position: absolute; left: 7%; right: 7%; top: 17px; height: 2px; background: var(--line); }
+.path li { position: relative; text-align: center; }
+.path button { background: none; border: 0; padding: 0; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+.path .dot { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-weight: 700;
+             background: var(--card); border: 2px solid var(--line); color: var(--muted); position: relative; z-index: 1; }
+.path .done .dot { border-color: var(--haldi); color: var(--ink); }
+.path [aria-current="step"] .dot { background: var(--haldi); border-color: var(--haldi); color: #1f2a55; }
+.path .lbl { font-size: .72rem; color: var(--muted); line-height: 1.2; }
+.path [aria-current="step"] .lbl { color: var(--ink); font-weight: 500; }
+@media (max-width: 520px) { .path .lbl { display: none; } }
+
+/* ---------- step content */
+.step { margin-top: 12px; }
+.step-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 6px 0 2px; }
+.step-title h3 { margin: 0; font-family: var(--deva); font-weight: 400; font-size: 1.6rem; color: var(--ink); }
+.step-title span { color: var(--muted); }
+.step-why { margin: 0 0 14px; color: var(--muted); font-size: .95rem; }
+.ref { font-size: .62em; vertical-align: super; color: var(--muted); margin-left: 1px; }
+
+.padas { list-style: none; margin: 0; padding: 0; counter-reset: pada; }
+.padas li { counter-increment: pada; display: grid; grid-template-columns: 54px 1fr; align-items: baseline;
+            padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.padas li::before { content: "पाद " counter(pada, devanagari); font-family: var(--deva); color: var(--kumkum); font-size: .95rem; }
+.padas .deva { font-size: 1.3rem; color: var(--ink); }
+
+.words { width: 100%; border-collapse: collapse; }
+.words td { padding: 9px 8px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.words td:first-child { font-family: var(--deva); font-size: 1.15rem; color: var(--ink); width: 38%; }
+.words .kind { display: inline-block; font-size: .78rem; color: var(--ink); background: var(--haldi-soft); border-radius: 5px; padding: 0 6px; margin-bottom: 2px; }
+.words .form { display: block; font-family: var(--deva); color: var(--text); }
+
+.anvaya { font-family: var(--deva); font-size: 1.45rem; line-height: 1.9; color: var(--ink); margin: 0;
+          padding: 4px 0 4px 16px; border-left: 3px solid var(--haldi); }
+
+.sense { margin: 18px 0 0; padding: 14px 16px; background: var(--card); border-radius: 12px; border: 1px solid var(--line); }
+.sense b { display: block; font-size: .85rem; color: var(--kumkum); font-weight: 500; margin-bottom: 2px; }
+
+.prose { font-size: 1.08rem; line-height: 1.8; max-width: 66ch; }
+.prose p { margin: 0 0 12px; }
+.prose .deva, .words .deva { font-size: 1.05em; }
+
+.pada-card { border: 1px solid var(--line); border-radius: 12px; background: var(--card); margin-bottom: 8px; }
+.pada-card summary { cursor: pointer; padding: 12px 14px; display: flex; align-items: baseline; gap: 10px; list-style: none; }
+.pada-card summary::-webkit-details-marker { display: none; }
+.pada-card summary::after { content: "+"; margin-left: auto; color: var(--muted); font-size: 1.2rem; }
+.pada-card[open] summary::after { content: "−"; }
+.pada-card summary .deva { font-size: 1.25rem; color: var(--ink); }
+.pada-card summary small { color: var(--muted); }
+.pada-card dl { margin: 0; padding: 0 14px 12px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; }
+.pada-card dt { color: var(--kumkum); font-size: .9rem; }
+.pada-card dd { margin: 0; }
+
+.raw { white-space: pre-wrap; line-height: 1.8; }
+
+.check { display: inline-flex; align-items: center; gap: 6px; margin-top: 18px; font-size: .85rem; color: var(--muted); }
+.check::before { content: ""; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--muted); }
+.check.approved, .check.reviewed { color: var(--ok); }
+.check.approved::before, .check.reviewed::before { background: var(--ok); border-color: var(--ok); }
+
+.study-nav { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+.btn { border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 500; cursor: pointer; }
+.btn.primary { background: var(--ink); color: var(--paper); }
+.btn.ghost { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); }
+
+/* ---------- welcome panel (wide screens, nothing selected) */
+.welcome { max-width: 560px; padding-top: 40px; }
+.welcome h2 { font-family: var(--deva); font-weight: 400; font-size: 2rem; color: var(--ink); margin: 0 0 8px; }
+.welcome ol { padding-left: 22px; line-height: 1.9; }
+.welcome ol span { font-family: var(--deva); color: var(--kumkum); }
+
+/* ---------- doubt chat */
+.chat { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.chat-verse { font-family: var(--deva); color: var(--ink); font-size: 1.1rem; line-height: 1.7; white-space: pre-line;
+              padding: 10px 14px; border-left: 3px solid var(--haldi); background: var(--leaf); border-radius: 0 10px 10px 0; }
+.suggest { display: flex; flex-wrap: wrap; gap: 8px; }
+.suggest button { border: 1.5px solid var(--line); background: var(--card); border-radius: 18px; padding: 6px 12px; cursor: pointer; font-size: .92rem; text-align: left; }
+.msg { max-width: 90%; padding: 10px 14px; border-radius: 14px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.msg.me { align-self: flex-end; background: var(--ink); color: var(--paper); border-bottom-right-radius: 4px; }
+.msg.bot { align-self: flex-start; background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.msg.err { border-color: var(--kumkum); }
+.sources { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); white-space: normal; }
+.sources ul { margin: 2px 0 0; padding-left: 18px; }
+.composer { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9; background: var(--paper); border-top: 1px solid var(--line);
+            padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); }
+.composer form { display: flex; gap: 8px; max-width: 760px; margin: 0 auto; }
+@media (min-width: 960px) { .composer { left: 428px; } }
+.composer textarea { flex: 1; resize: none; min-height: 46px; max-height: 130px; padding: 11px 13px; border-radius: 12px;
+                     border: 1.5px solid var(--line); background: var(--card); color: var(--text); font: inherit; }
+.composer .btn { padding: 0 18px; }
+.btn[disabled] { opacity: .5; }
+.thinking::after { content: " …"; animation: pulse 1.2s infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .thinking::after { animation: none; } }
+.center { text-align: center; color: var(--muted); padding: 40px 0; }
