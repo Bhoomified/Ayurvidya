@@ -35,6 +35,14 @@ def topics_from_gold(paths) -> dict[str, str]:
             out.update({str(r[n]): str(r[t] or "") for r in rows[1:] if r[n]})
     return out
 
+def topics_from_csv(path) -> dict[str, str]:
+    """Topic names for verses not in the gold table (data/topics_su_ni_1.csv: verse,topic). Gold wins."""
+    import csv
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        return {r["verse"].strip(): r["topic"].strip() for r in csv.DictReader(f) if r.get("topic")}
+    
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -44,7 +52,8 @@ def main() -> None:
     s = load_settings(args.config)
 
     gold_files = sorted((s.data_dir / "gold").glob("*.xlsx"))
-    shlokas, colophon = load_mula(s.data_dir / "raw" / "niimh_su_ni_1_mula.json", topics=topics_from_gold(gold_files))
+    topics = {**topics_from_csv(s.data_dir / "topics_su_ni_1.csv"), **topics_from_gold(gold_files)}
+    shlokas, colophon = load_mula(s.data_dir / "raw" / "niimh_su_ni_1_mula.json", topics=topics)
     gold = {}
     if not args.no_gold:
         for g in gold_files:
