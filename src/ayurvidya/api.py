@@ -6,21 +6,30 @@
     POST /chat                             {question, shloka_id?, history?} -> grounded answer + citations
     POST /admin/shlokas/{shloka_id}/run    (re)generate the 7 steps for one shloka   [needs ADMIN_TOKEN]
     PUT  /admin/shlokas/{id}/steps/{n}     scholar review: approve or correct a step  [needs ADMIN_TOKEN]
+    GET  /app/                             the mobile web app (files in web/)
 
-Run:  uvicorn ayurvidya.api:api --reload      (from the project root, with PYTHONPATH=src)
+Run:  python scripts/serve.py                 (prints the address to open on your phone)
 """
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from .llm import LLMError
 from .schema import Shloka
 from .service import build_app
+from .sources import source_label
+
+WEB_DIR = Path(__file__).resolve().parents[2] / "web"
 
 app_state = build_app()
-api = FastAPI(title="Ayurvidya RAG", version="1.0")
+chunks_by_id = {c.id: c for c in app_state.kb.chunks}
+api = FastAPI(title="Ayurvidya RAG", version="1.1")
 
 
 class ChatIn(BaseModel):
@@ -67,7 +76,10 @@ def chat(body: ChatIn):
         a = app_state.chatbot.ask(body.question, body.shloka_id, body.history)
     except KeyError as e:
         raise HTTPException(404, str(e))
-    return {"answer": a.answer, "citations": a.citations, "grounded": a.grounded}
+    except LLMError:
+        raise HTTPException(503, "The AI is busy or today's free limit is used up. Please try again later.")
+    return {"answer": a.answer, "citations": a.citations, "grounded": a.grounded,
+            "sources": [{"id": c, "label": source_label(c, chunks_by_id)} for c in a.citations]}
 
 
 @api.post("/admin/shlokas/{shloka_id}/run")
@@ -87,3 +99,13 @@ def review(shloka_id: str, step: int, body: ReviewIn, x_admin_token: str | None 
     _admin(x_admin_token)
     app_state.store.set_review(shloka_id, step, body.status, body.note, body.output)
     return {"ok": True}
+
+
+# ---------------------------------------------------------------- mobile web app
+@api.get("/", include_in_schema=False)
+def home():
+    return RedirectResponse("/app/")
+
+
+if WEB_DIR.exists():
+    api.mount("/app", StaticFiles(directory=WEB_DIR, html=True), name="app")
