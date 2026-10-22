@@ -93,8 +93,10 @@ class HybridRetriever:
             if gold_free:
                 searched += self.search(query, remaining, source_types=gold_free, exclude_ids=seen)
             if "gold" in source_types and n_examples:   # few-shot examples of the SAME step, OTHER verses
-                ex = self.search(query, 30, source_types=["gold"], exclude_shlokas=excl)
-                searched += [h for h in ex if step is None or h.chunk.meta.get("step") == step][:n_examples]
+                other_steps = [c.id for c in self.kb.chunks
+                               if c.source_type == "gold" and step is not None and c.meta.get("step") != step]
+                searched += self.search(query, n_examples, source_types=["gold"],
+                                        exclude_ids=other_steps, exclude_shlokas=excl)
             for h in searched:
                 if h.chunk.id not in seen:
                     seen.add(h.chunk.id)
