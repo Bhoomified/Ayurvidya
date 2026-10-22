@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ayurvidya
+    runtime: python
+    plan: free
+    buildCommand: >-
+      pip install -r requirements-server.txt &&
+      python scripts/build_kb.py &&
+      python scripts/share_answers.py import
+    startCommand: uvicorn ayurvidya.api:api --app-dir src --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: AYV_LLM
+        value: openai:gemini-3.5-flash-lite
+      - key: AYV_LLM_BASE_URL
+        value: https://generativelanguage.googleapis.com/v1beta/openai
+      - key: OPENAI_API_KEY
+        sync: false
